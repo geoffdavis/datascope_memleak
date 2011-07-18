@@ -1,2 +1,10 @@
-Example C program to try to find memory leaks in the Datascope libraries
+I believe I've found a leak in the Datascope routines where it looks like dbfree isn't freeing everything up. I have thrown together a quick test case that demonstrates this leak. Please see https://github.com/geoffdavis/datascope_memleak
+
+Basically, what happens is that I open a database, do a couple of dblookups, joins, and groups. Then I enter an infinite loop where I iterate over every station, subset that one station, then ungroup.
+
+I make sure to free up the intermediate Dbptrs generated in each loop iteration, but the memory usage still increases steadily over time. After about 20,000 iterations of the outer loop, my process grows to about 5.5 MB in size.
+
+Tested on 5.0-64 and 5.1-64 - Darwin/Intel
+
 See https://github.com/robnewman/antelope_utilities/blob/master/tests/datascope_memory_leak for a python version of this program
+
