@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
 	char *antelope; //$ANTELOPE
 	char dbpath[260]; // path to database
 	long i=0, j=0; // record counts for datascope views
+	long iter=0; // number of iterations
 	Dbptr db; // main db pointer
 	Dbptr dbsnetsta; //pointer to snetsta table
 	Dbptr dbsitechan; // pointer to sitechan table
@@ -47,6 +48,8 @@ int main(int argc, char *argv[]) {
 	// start an infinite loop of db crunching
 	while (1) {
 		for (db.record = 0; db.record < i; db.record++) {
+			iter++;
+			printf("Iteration: %ld\n", iter);
 			if (dbgetv(db, 0, "sta", sub_sta, NULL) < 0)
 				elog_die(1, "Can't dbgetv sta");
 
@@ -64,6 +67,7 @@ int main(int argc, char *argv[]) {
 			} // end for j
 
 			dbfree(db_sub2);
+
 
 		} //end for i
 
