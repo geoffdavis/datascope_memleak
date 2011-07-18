@@ -8,72 +8,69 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main( int argc, char *argv[] ) {
-  char *antelope; //$ANTELOPE
-  char dbpath[260]; // path to database
-  int i,j; // itirator variable for db records
-  Dbptr db; // main db pointer
-  Dbptr dbsnetsta; //pointer to snetsta table
-  Dbptr dbsitechan; // pointer to sitechan table
-  Dbptr db_sub;
-  Tbl *sortkeys, *groupkeys ; // keys to sort the db
-  char sub_sta[25] ;
-  char subsetstr[sizeof(sub_sta)+5] ;
-  // Open up demo database tables and group, then run infinite loop
-  elog_init( argc, argv);
-  
-  antelope = getenv( "ANTELOPE" );
-  if (antelope == NULL)
-    elog_die(1,"The ANTELOPE environment variable is not set.");
+int main(int argc, char *argv[]) {
+	char *antelope; //$ANTELOPE
+	char dbpath[260]; // path to database
+	long i=0, j=0; // record counts for datascope views
+	Dbptr db; // main db pointer
+	Dbptr dbsnetsta; //pointer to snetsta table
+	Dbptr dbsitechan; // pointer to sitechan table
+	Dbptr db_sub1,db_sub2;
+	Tbl *sortkeys, *groupkeys; // keys to sort the db
+	char sub_sta[25];
+	char subsetstr[sizeof(sub_sta) + 5];
+	// Open up demo database tables and group, then run infinite loop
+	elog_init(argc, argv);
 
-  // Construct the dbpath
-  sprintf( dbpath, "%s/demo/socalif/db/scdemo", antelope);
+	antelope = getenv("ANTELOPE");
+	if (antelope == NULL)
+		elog_die(1, "The ANTELOPE environment variable is not set.");
 
-  if ( dbopen( dbpath, "r", &db) < 0 )
-    elog_die(0, "Can't open demo db") ;
+	// Construct the dbpath
+	sprintf( dbpath, "%s/demo/socalif/db/scdemo", antelope);
 
-  // start an infinite loop of db crunching
-  while (1) {
-    dbsnetsta = dblookup( db, 0, "snetsta", 0, 0 );
-    dbsitechan = dblookup( db, 0, "sitechan", 0, 0 );
-    db = dbjoin( dbsnetsta, dbsitechan, 0, 0, 0, 0, 0);
-    sortkeys = strtbl( "snet", "sta", NULL ) ;
-    db = dbsort (db, sortkeys, 0, 0 );
-    groupkeys = strtbl( "sta", NULL );
-    db = dbgroup( db, groupkeys, 0, 0);
+	if (dbopen(dbpath, "r", &db) < 0)
+		elog_die(0, "Can't open demo db");
 
-    dbquery ( db, dbRECORD_COUNT, &i ) ;
+	dbsnetsta = dblookup(db, 0, "snetsta", 0, 0);
+	dbsitechan = dblookup(db, 0, "sitechan", 0, 0);
+	db = dbjoin(dbsnetsta, dbsitechan, 0, 0, 0, 0, 0);
+	sortkeys = strtbl("snet", "sta", NULL);
+	db = dbsort(db, sortkeys, 0, 0);
+	groupkeys = strtbl("sta", NULL);
+	db = dbgroup(db, groupkeys, NULL, 0);
 
-    printf ("dbRECORD_COUNT i is %d\n", i);
-    /*
-    for ( db.record =0; db.record < i; db.record++ ) {
-      if ( dbgetv ( db, 0, "sta", sub_sta, NULL ) < 0 )
-        elog_die(1, "Can't dbgetv sta");
+	dbquery(db, dbRECORD_COUNT, &i);
 
-      snprintf( subsetstr, sizeof(subsetstr), "sta=~/%s", sub_sta);
-      db_sub = dbsubset ( db, subsetstr, 0 ) ;
-      db_sub = dbungroup ( db_sub, 0);
+	printf("dbRECORD_COUNT i is %ld\n", i);
 
-      dbquery (db_sub, dbRECORD_COUNT, &j );
-      for ( db_sub.record=0; db_sub.record < j; db_sub.record++ ) {
-        printf ("dbRECORD_COUNT j is %d\n", j);
-//no-op for the moment, need to get a list of values
-      } // end for j
+	// start an infinite loop of db crunching
+	while (1) {
+		for (db.record = 0; db.record < i; db.record++) {
+			if (dbgetv(db, 0, "sta", sub_sta, NULL) < 0)
+				elog_die(1, "Can't dbgetv sta");
 
-      dbfree(db_sub);
-      fflush(stdout);
-      elog_print(stdout,0);
-
-    } //end for i
-    */
-    dbfree(dbsnetsta);
-    dbfree(dbsitechan);
-    
+			snprintf( subsetstr, sizeof(subsetstr), "sta=~/%s", sub_sta);
+			db_sub1 = dbsubset(db, subsetstr, 0);
+			db_sub2 = dbungroup(db_sub1, 0);
+			dbfree(db_sub1);
 
 
+			dbquery(db_sub2, dbRECORD_COUNT, &j);
 
-  } //end while (1)
+			for (db_sub2.record = 0; db_sub2.record < j; db_sub2.record++) {
+				printf("dbRECORD_COUNT j is %ld\n", j);
+				//no-op for the moment, need to get a list of values
+			} // end for j
 
-  dbclose(db);
+			dbfree(db_sub2);
+
+		} //end for i
+
+
+	} //end while (1)
+	dbfree(dbsnetsta);
+	dbfree(dbsitechan);
+	dbclose(db);
 
 } //end main

@@ -1,3 +1,4 @@
 dbmemleak
 dbmemleak.dSYM
 dbmemleak.o
+.optimize.db
