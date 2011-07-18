@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 	char *antelope; //$ANTELOPE
 	char dbpath[260]; // path to database
 	long i=0, j=0; // record counts for datascope views
-	long iter=0; // number of iterations
+	unsigned long iter=0; // number of iterations
 	Dbptr db; // main db pointer
 	Dbptr dbsnetsta; //pointer to snetsta table
 	Dbptr dbsitechan; // pointer to sitechan table
